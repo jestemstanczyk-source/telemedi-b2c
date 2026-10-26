@@ -1,0 +1,14 @@
+{
+ "patients": 40918,
+ "orders365_all": null,
+ "sessions": 457464,
+ "paid_success": 63893,
+ "spend": 1017307.31,
+ "orders_clean": 63207,
+ "visits_held": 59032,
+ "visits_after_axis": 23,
+ "patients_P": 16231,
+ "patients_L": 24687,
+ "first_internist": 28943,
+ "orders_M": 63207
+}

@@ -1,0 +1,15 @@
+import pandas as pd, numpy as np
+L=lambda n: pd.read_pickle(n+'.pkl')
+ses,ev,users,orders,go,sp=[L(n) for n in 'ses ev users orders go sp'.split()]
+print('### USERS',len(users),'dup id',users.user_id.duplicated().sum(),'dup excl id',users.drop(columns='user_id').duplicated().sum())
+print(users.describe(include='all').to_string())
+print(users.gender.value_counts(dropna=False).to_string(), users.city_size.value_counts(dropna=False).to_string(), users.region.value_counts(dropna=False).to_string())
+print('birth_year extremes',users.birth_year.quantile([0,.01,.99,1]).to_dict(), (users.birth_year>2008).sum(), (users.birth_year<1930).sum())
+fo=orders.groupby('user_id').created_at.min(); u=users.set_index('user_id'); print('users with no order',(~u.index.isin(fo.index)).sum())
+d=(fo-u.registered_at.reindex(fo.index)).dt.total_seconds(); print('first order before registration',(d<0).sum(), d.describe().to_string())
+fs=ses.dropna(subset=['user_id']).groupby('user_id').started_at_pl.min(); dd=(fs-u.registered_at.reindex(fs.index)).dt.total_seconds()/60; print('first logged session - registered (min)',dd.describe().to_string())
+print('reg by month'); print(users.registered_at.dt.to_period('M').value_counts().sort_index().to_string())
+print('\n### SPEND',len(sp),'dup',sp.duplicated(['date','utm_source','utm_medium','utm_campaign']).sum())
+print(sp.groupby(['utm_source','utm_campaign']).agg(d0=('date','min'),d1=('date','max'),n=('date','count'),spend=('spend_pln','sum'),clicks=('clicks','sum')).to_string())
+alld=pd.date_range('2024-10-01','2026-09-30'); per=sp.groupby('date').spend_pln.sum().reindex(alld); print('days with no spend at all',per.isna().sum(), list(per[per.isna()].index.date)[:40])
+print('neg/zero',(sp.spend_pln<=0).sum(),(sp.clicks>sp.impressions).sum(), 'clicks0 spend>0',((sp.clicks==0)&(sp.spend_pln>0)).sum())

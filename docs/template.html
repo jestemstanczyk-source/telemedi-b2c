@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Telemedi B2C · kohorty i lejki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14323A;--ink2:#4C6870;--bg:#F3F6F5;--surf:#FFFFFF;--line:#D6E0DD;--acc:#0F7B64;--ev:#C98A00;--bad:#B23A3A;--soft:#E6EEEB;
+--s1:#0F7B64;--s2:#2F5DA8;--s3:#8E4FB0;--s4:#B23A3A;--s5:#3A9AB8;--s6:#5C7A82;--s7:#6B8E23;--s8:#8A5A3A;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#DCE8E5;--ink2:#93ABA6;--bg:#0E1A1D;--surf:#152529;--line:#28403F;--acc:#3CC19E;--ev:#E9B23C;--bad:#E07070;--soft:#1B2F33;
+--s1:#3CC19E;--s2:#7FA6EE;--s3:#C79BE6;--s4:#E07070;--s5:#6CC6E3;--s6:#93ABA6;--s7:#A6C95A;--s8:#C99A73;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#DCE8E5;--ink2:#93ABA6;--bg:#0E1A1D;--surf:#152529;--line:#28403F;--acc:#3CC19E;--ev:#E9B23C;--bad:#E07070;--soft:#1B2F33;
+--s1:#3CC19E;--s2:#7FA6EE;--s3:#C79BE6;--s4:#E07070;--s5:#6CC6E3;--s6:#93ABA6;--s7:#A6C95A;--s8:#C99A73;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Barlow,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.num,td.n,.kpi b{font-family:"Barlow Condensed","Arial Narrow",Barlow,sans-serif;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding:14px 20px 0}
+header h1{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
+header p{margin:0;color:var(--ink2)}
+nav{display:flex;gap:2px;padding:10px 20px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{font:inherit;background:none;border:0;border-bottom:3px solid transparent;color:var(--ink2);padding:8px 12px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0;min-height:calc(100vh - 100px)}
+aside{border-right:1px solid var(--line);padding:16px 18px;background:var(--surf)}
+aside h3{font-size:14px;margin:16px 0 6px;font-weight:600}
+aside h3:first-child{margin-top:0}
+aside label{display:block;font-size:13px;color:var(--ink2);margin:6px 0 2px}
+select,input[type=date]{font:inherit;font-size:14px;width:100%;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+.ms{max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:4px;padding:4px 6px;background:var(--bg);font-size:13px}
+.ms label{display:flex;gap:6px;align-items:center;margin:1px 0;color:var(--ink)}
+.ms .all{font-size:12px;color:var(--acc);cursor:pointer;background:none;border:0;padding:0;margin-right:8px}
+main{padding:18px 22px 40px;min-width:0}
+section{display:none}section.on{display:block}
+h2{font-size:19px;font-weight:600;margin:4px 0 6px}
+h4{font-size:15px;margin:22px 0 6px;font-weight:600}
+.lead{max-width:78ch;color:var(--ink)}
+.muted{color:var(--ink2);font-size:13px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:8px 0}
+.row>div{min-width:150px}
+.chart{background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:8px 6px 4px;position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;padding:4px 8px}
+.legend i{display:inline-block;width:12px;height:3px;vertical-align:middle;margin-right:5px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 8px;border-radius:4px;white-space:nowrap;display:none;z-index:5;line-height:1.35}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surf)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:5px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--ink2);background:var(--soft)}
+td.n,th.n{text-align:right;white-space:nowrap}
+.pos{color:var(--acc)}.neg{color:var(--bad)}
+.verdict{border-left:4px solid var(--bad);background:var(--surf);padding:12px 16px;max-width:90ch;margin:8px 0 14px}
+.verdict p{margin:6px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.evlist{display:grid;gap:10px}
+.ev{background:var(--surf);border:1px solid var(--line);border-left:4px solid var(--ev);border-radius:4px;padding:10px 14px}
+.ev .h{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.ev .d{font-family:"Barlow Condensed",sans-serif;font-size:16px;color:var(--ev)}
+.ev .c{font-size:12px;border:1px solid var(--line);border-radius:10px;padding:0 8px;color:var(--ink2)}
+.ev p{margin:5px 0;max-width:95ch}
+.ev button{font:inherit;font-size:13px;background:none;border:1px solid var(--acc);color:var(--acc);border-radius:4px;padding:2px 9px;cursor:pointer;margin-right:6px}
+ol.prio{padding-left:22px;max-width:100ch}ol.prio li{margin:0 0 14px}
+ol.prio .k{display:grid;grid-template-columns:150px 1fr;gap:2px 12px;font-size:14px;margin-top:4px}
+ol.prio .k span:nth-child(odd){color:var(--ink2)}
+.evtoggles{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;margin:4px 0}
+.ok{color:var(--acc);font-weight:600}.fail{color:var(--bad);font-weight:600}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}aside{border-right:0;border-top:1px solid var(--line);order:2}aside.idle{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><h1>Telemedi B2C: kohorty i lejki</h1><p>1.10.2024–30.09.2026 · dane oczyszczone (bez duplikatów i kont QA) · czas polski</p></header>
+<nav role="tablist" id="tabs"></nav>
+<div class="wrap">
+<aside id="filters">
+ <h3>Okna porównania</h3>
+ <label for="aFrom">Okno A od / do</label>
+ <div class="row" style="margin:0"><input type="date" id="aFrom"><input type="date" id="aTo"></div>
+ <label for="bFrom">Okno B od / do</label>
+ <div class="row" style="margin:0"><input type="date" id="bFrom"><input type="date" id="bTo"></div>
+ <p class="muted">A i B to daty kohort (kohorty) albo daty sesji (lejek). Klik w zdarzenie ustawia okna przed/po.</p>
+ <h3>Filtry kohort</h3>
+ <div id="kf"></div>
+ <h3>Filtry lejka</h3>
+ <div id="ff"></div>
+</aside>
+<main>
+<section id="s-wzrost"></section>
+<section id="s-kohorty"></section>
+<section id="s-lejek"></section>
+<section id="s-wizyty"></section>
+<section id="s-zdarzenia"></section>
+<section id="s-prio"></section>
+<section id="s-unk"></section>
+<section id="s-dane"></section>
+</main>
+</div>
+<div class="tip" id="tip"></div>
+<script>/*__CONTENT__*/</script>
+<script>window.DATA=/*__DATA__*/;window.CONTROL=/*__CONTROL__*/;</script>
+<script>
+(function(){
+const D=window.DATA,C=window.CONTENT,CTL=window.CONTROL;
+const D0=new Date(D.d0+'T00:00:00Z'),ND=D.ndays,AGES=D.ages;
+const day2s=i=>{const d=new Date(D0.getTime()+i*864e5);return d.toISOString().slice(0,10)};
+const s2day=s=>Math.round((new Date(s+'T00:00:00Z')-D0)/864e5);
+const fmt=(v,d=1)=>v==null||!isFinite(v)?'–':v.toLocaleString('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(v,d=1)=>v==null||!isFinite(v)?'–':(v*100).toLocaleString('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const $=id=>document.getElementById(id);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const SER=['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8'];
+// ---------- decode cubes
+function dec(c){const o={cols:Object.keys(c),len:0,dict:{}};for(const k of o.cols){const v=c[k];if(v&&v.dict){o.dict[k]=v.dict;o[k]=Int32Array.from(v.idx)}else{o[k]=Float64Array.from(v)}o.len=o[k].length}return o}
+const K=dec(D.K),R=dec(D.R),F1=dec(D.F1),F2=dec(D.F2),SP=dec(D.SP),VD=dec(D.VD),VH=dec(D.VH),Q=dec(D.Q),MV=dec(D.M);
+const LBL={acq:'Źródło pozyskania',f_visit_purpose:'Cel 1. wizyty',disc:'Rabat 1. zamówienia',device:'Urządzenie',inapp:'Przeglądarka',f_delay:'Opóźnienie 1. wizyty',region:'Region',src:'Źródło sesji',osb:'System / przeglądarka',visitor:'Nowy / powracający',lp:'Landing page'};
+const CH_OF={gs_brand:'google/cpc',gs_generic_erecepta:'google/cpc',gs_generic_l4:'google/cpc',gs_generic_lekarz_online:'google/cpc',gs_generic_specjalisci:'google/cpc',meta_prosp_l4_szybko:'meta/paid_social',meta_prosp_lekarz_online:'meta/paid_social',meta_rmkt_koszyk:'meta/paid_social',tt_prosp_l4_15min:'tiktok/paid_social'};
+// ---------- state
+const ST={tab:'wzrost',kf:{},ff:{},A:[s2day('2024-10-01'),s2day('2025-09-30')],B:[s2day('2025-10-01'),s2day('2026-09-30')],evOn:{}};
+for(const e of C.events)ST.evOn[e.id]=true;
+// ---------- filters UI
+function msBox(host,key,dict,store){const wrap=document.createElement('div');const lab=document.createElement('label');lab.textContent=LBL[key];wrap.appendChild(lab);
+ const box=document.createElement('div');box.className='ms';const ctr=document.createElement('div');
+ const b1=document.createElement('button');b1.className='all';b1.textContent='wszystkie';const b2=document.createElement('button');b2.className='all';b2.textContent='żadne';ctr.append(b1,b2);box.appendChild(ctr);
+ store[key]=new Set(dict.map((_,i)=>i));
+ dict.forEach((v,i)=>{const l=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=true;cb.dataset.i=i;cb.onchange=()=>{cb.checked?store[key].add(i):store[key].delete(i);render()};l.append(cb,document.createTextNode(v));box.appendChild(l)});
+ b1.onclick=()=>{box.querySelectorAll('input').forEach(c=>{c.checked=true;store[key].add(+c.dataset.i)});render()};
+ b2.onclick=()=>{box.querySelectorAll('input').forEach(c=>{c.checked=false});store[key].clear();render()};
+ box.dataset.key=key;wrap.appendChild(box);host.appendChild(wrap)}
+function setMs(host,key,store,vals){const box=$(host).querySelector(`.ms[data-key="${key}"]`);store[key].clear();box.querySelectorAll('input').forEach(c=>{const on=vals==null||vals.includes(box.parentNode&&(F1.dict[key]||K.dict[key])[+c.dataset.i]);c.checked=on;if(on)store[key].add(+c.dataset.i)})}
+['acq','f_visit_purpose','disc','device','inapp','f_delay'].forEach(k=>msBox($('kf'),k,K.dict[k],ST.kf));
+['src','device','osb','visitor'].forEach(k=>msBox($('ff'),k,F1.dict[k],ST.ff));
+msBox($('ff'),'lp',F2.dict.lp,ST.ff);
+const lpNote=document.createElement('p');lpNote.className='muted';lpNote.textContent='Landing page jest w osobnej kostce: gdy go zawęzisz, filtry urządzenia i systemu nie działają.';$('ff').appendChild(lpNote);
+function setWin(){for(const [id,w,i] of [['aFrom','A',0],['aTo','A',1],['bFrom','B',0],['bTo','B',1]]){$(id).value=day2s(ST[w][i]);$(id).min=D.d0;$(id).max=day2s(ND-1);$(id).onchange=e=>{ST[w][i]=Math.max(0,Math.min(ND-1,s2day(e.target.value)));render()}}}
+setWin();
+// ---------- tabs
+const TABS=[['wzrost','Czy to wzrost?'],['kohorty','Kohorty'],['lejek','Lejek'],['wizyty','Wizyty i opóźnienia'],['zdarzenia','Zdarzenia'],['prio','Priorytety'],['unk','Czego nie wiemy'],['dane','Dane i założenia']];
+TABS.forEach(([k,t])=>{const b=document.createElement('button');b.role='tab';b.textContent=t;b.dataset.k=k;b.onclick=()=>go(k);$('tabs').appendChild(b)});
+function go(k){ST.tab=k;if(location.hash.slice(1)!==k)history.replaceState(null,'','#'+k);render()}
+const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h))ST.tab=h;
+window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);if(TABS.some(t=>t[0]===k)){ST.tab=k;render()}});
+// ---------- SVG line chart
+const tip=$('tip');
+function lineChart(host,{x,series,xType='day',yFmt=v=>fmt(v,1),events=true,h=300,xFmt}){
+ host.innerHTML='';const W=Math.max(320,host.clientWidth||900),H=h,ml=56,mr=14,mt=12,mb=26;
+ let lo=Infinity,hi=-Infinity;series.forEach(s=>s.y.forEach(v=>{if(v!=null&&isFinite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v)}}));
+ if(!isFinite(lo)){host.innerHTML='<p class="muted" style="padding:20px">Brak danych dla wybranych filtrów. Rozszerz filtry albo okno.</p>';return}
+ if(lo>0&&lo<hi*0.6)lo=0;if(hi===lo){hi=lo+1}const pad=(hi-lo)*0.06;const cap=hi<=1&&lo>=0;hi+=pad;if(cap&&hi>1)hi=1;if(lo!==0)lo-=pad;
+ const x0=x[0],x1=x[x.length-1];const sx=v=>ml+(v-x0)/((x1-x0)||1)*(W-ml-mr),sy=v=>mt+(1-(v-lo)/(hi-lo))*(H-mt-mb);
+ let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="wykres">`;
+ const ink2=css('--ink2'),line=css('--line'),ev=css('--ev');
+ for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=sy(v);g+=`<line x1="${ml}" x2="${W-mr}" y1="${y}" y2="${y}" stroke="${line}"/><text x="${ml-6}" y="${y+4}" text-anchor="end" font-size="11" fill="${ink2}">${yFmt(v)}</text>`}
+ if(xType==='day'){for(let d=x0;d<=x1;d++){const s=day2s(d);if(s.endsWith('-01')&&(+s.slice(5,7))%3===1){const X=sx(d);g+=`<line x1="${X}" x2="${X}" y1="${mt}" y2="${H-mb}" stroke="${line}" stroke-dasharray="2 3"/><text x="${X+2}" y="${H-8}" font-size="11" fill="${ink2}">${s.slice(0,7)}</text>`}}}
+ else{x.forEach(v=>{g+=`<text x="${sx(v)}" y="${H-8}" font-size="11" text-anchor="middle" fill="${ink2}">${xFmt?xFmt(v):v}</text>`})}
+ if(events&&xType==='day'){for(const e of C.events){if(!ST.evOn[e.id])continue;const a=s2day(e.d),b=e.e?s2day(e.e):a;if(b<x0||a>x1)continue;const X=sx(Math.max(a,x0)),X2=sx(Math.min(b,x1));
+  if(b>a)g+=`<rect x="${X}" y="${mt}" width="${Math.max(1,X2-X)}" height="${H-mt-mb}" fill="${ev}" opacity=".12"/>`;
+  g+=`<line x1="${X}" x2="${X}" y1="${mt}" y2="${H-mb}" stroke="${ev}" stroke-width="1.5"/><text x="${X+3}" y="${mt+10}" font-size="11" fill="${ev}" font-weight="600">${e.id}</text>`}}
+ series.forEach((s,k)=>{const col=css(s.color||SER[k%8]);let p='',on=false;s.y.forEach((v,i)=>{if(v==null||!isFinite(v)){on=false;return}p+=(on?'L':'M')+sx(x[i]).toFixed(1)+' '+sy(v).toFixed(1);on=true});
+  g+=`<path d="${p}" fill="none" stroke="${col}" stroke-width="${s.w||1.7}" ${s.dash?'stroke-dasharray="5 4"':''}/>`;
+  if(xType!=='day')s.y.forEach((v,i)=>{if(v!=null&&isFinite(v))g+=`<circle cx="${sx(x[i])}" cy="${sy(v)}" r="3" fill="${col}"/>`})});
+ g+=`<line id="hx" x1="0" x2="0" y1="${mt}" y2="${H-mb}" stroke="${ink2}" opacity="0"/></svg>`;
+ const div=document.createElement('div');div.innerHTML=g;host.appendChild(div);
+ const lg=document.createElement('div');lg.className='legend';lg.innerHTML=series.map((s,k)=>`<span><i style="background:${css(s.color||SER[k%8])}"></i>${s.name}</span>`).join('');host.appendChild(lg);
+ const svg=div.firstChild,hx=svg.querySelector('#hx');
+ svg.onmousemove=ev=>{const r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width;let i=0,best=1e9;x.forEach((v,j)=>{const dd=Math.abs(sx(v)-px);if(dd<best){best=dd;i=j}});
+  hx.setAttribute('x1',sx(x[i]));hx.setAttribute('x2',sx(x[i]));hx.setAttribute('opacity','.5');
+  const lab=xType==='day'?day2s(x[i]):(xFmt?xFmt(x[i]):x[i]);const evs=xType==='day'?C.events.filter(e=>ST.evOn[e.id]&&x[i]>=s2day(e.d)&&x[i]<=(e.e?s2day(e.e):s2day(e.d))).map(e=>'<br>'+e.id+': '+e.title):[];
+  tip.innerHTML='<b>'+lab+'</b>'+series.map(s=>'<br>'+s.name+': '+yFmt(s.y[i])).join('')+evs.join('');
+  const hr=host.getBoundingClientRect();tip.style.display='block';tip.style.left=Math.min(ev.clientX+14,innerWidth-260)+'px';tip.style.top=(ev.clientY+window.scrollY+12)+'px';tip.style.position='absolute'};
+ svg.onmouseleave=()=>{tip.style.display='none';hx.setAttribute('opacity','0')}}
+// ---------- cohort helpers
+const KMET={n:'Nowi pacjenci / dzień',rep:'Retencja (2. zamówienie do dnia N)',ord:'Zamówienia na pacjenta do dnia N',net:'Przychód netto na pacjenta do dnia N (zł)',mar:'Marża na pacjenta do dnia N (zł)',bad:'Zwroty + anulacje na zamówienie do dnia N',ns:'No-show na zamówienie do dnia N',go:'Adopcja GO do dnia N',cac:'CAC (zł, tylko kampanie płatne)',payback:'Marża do dnia N − CAC (zł)'};
+const kpass=i=>{for(const k of ['acq','f_visit_purpose','disc','device','inapp','f_delay'])if(!ST.kf[k].has(K[k][i]))return false;return true};
+function kDaily(dim){ // returns {keys,[key]:{n:[],m:{rep0..}}}
+ const res=new Map();const mets=K.cols.filter(c=>/\d+$/.test(c));
+ for(let i=0;i<K.len;i++){if(!kpass(i))continue;const key=dim?K.dict[dim][K[dim][i]]:'wszyscy';let r=res.get(key);if(!r){r={n:new Float64Array(ND)};mets.forEach(m=>r[m]=new Float64Array(ND));res.set(key,r)}
+  const d=K.cohd[i];r.n[d]+=K.n[i];for(const m of mets)r[m][d]+=K[m][i]}
+ return res}
+function spendDaily(){ // spend for selected paid campaigns + affiliate 25/patient handled outside
+ const acq=K.dict.acq,sel=new Set([...ST.kf.acq].map(i=>acq[i]));const s=new Float64Array(ND);const sd=SP.dict.utm_campaign;
+ for(let i=0;i<SP.len;i++){const c=sd[SP.utm_campaign[i]];if(sel.has(c))s[SP.d[i]]+=SP.spend_pln[i]}return s}
+function kSeries(r,metric,age,smooth,spend,minN=0){const y=new Array(ND).fill(null);const lim=ND-1-(['n','cac'].includes(metric)?0:age);
+ for(let d=0;d<ND;d++){if(d>lim)continue;const a=Math.max(0,d-smooth+1);let num=0,den=0,sp=0;
+  for(let j=a;j<=d;j++){den+=r.n[j];if(metric==='n')num+=r.n[j];else if(metric==='cac'||metric==='payback'){sp+=spend?spend[j]:0;if(metric==='payback')num+=r['mar'+age][j]}
+   else if(metric==='bad'||metric==='ns')num+=r[metric+age][j];else num+=r[metric+age][j]}
+  if(metric==='n')y[d]=num/(d-a+1);else if(metric==='bad'||metric==='ns'){let o=0;for(let j=a;j<=d;j++)o+=r['ord'+age][j];y[d]=o?num/o:null}
+  else if(metric==='cac')y[d]=den?sp/den:null;else if(metric==='payback')y[d]=den?(num-sp)/den:null;else y[d]=den?num/den:null;if(den<minN)y[d]=null}
+ return y}
+function sumWin(r,[a,b],age,metric,spend){let n=0,num=0,o=0,sp=0;const lim=ND-1-age;for(let d=a;d<=Math.min(b,lim);d++){n+=r.n[d];o+=r['ord'+age][d];sp+=spend?spend[d]:0;if(metric&&!['n','cac','payback'].includes(metric))num+=r[metric+age][d];if(metric==='payback')num+=r['mar'+age][d]}
+ if(metric==='bad'||metric==='ns')return{v:o?num/o:null,n};if(metric==='cac')return{v:n?sp/n:null,n};if(metric==='payback')return{v:n?(num-sp)/n:null,n};if(metric==='n')return{v:n,n};return{v:n?num/n:null,n}}
+const yfm=m=>['rep','bad','ns','go'].includes(m)?(v=>pct(v,1)):['n'].includes(m)?(v=>fmt(v,1)):m==='ord'?(v=>fmt(v,2)):(v=>fmt(v,1));
+// ---------- funnel helpers
+const STEPS=['sess','service_selected','slot_selected','account_completed','payment_started','payment_succeeded'];
+const SLBL={sess:'Sesje',service_selected:'Wybór usługi',slot_selected:'Wybór terminu',account_completed:'Konto',payment_started:'Start płatności',payment_succeeded:'Płatność OK'};
+function fCube(split){const useF2=ST.ff.lp.size!==F2.dict.lp.length||split==='lp';return useF2?F2:F1}
+function fpass(F,i){for(const k of ['src','visitor'])if(!ST.ff[k].has(remap(F,k,i)))return false;
+ if(F===F1){for(const k of ['device','osb'])if(!ST.ff[k].has(F1[k][i]))return false}else{if(!ST.ff.lp.has(F2.lp[i]))return false}return true}
+const remapCache={};function remap(F,k,i){if(F===F1)return F1[k][i];const key=k;if(!remapCache[key]){remapCache[key]=F2.dict[k].map(v=>F1.dict[k].indexOf(v))}return remapCache[key][F2[k][i]]}
+function fDaily(split){const F=fCube(split);const res=new Map();for(let i=0;i<F.len;i++){if(!fpass(F,i))continue;const key=split?F.dict[split][F[split][i]]:'wszystkie';let r=res.get(key);if(!r){r={};STEPS.forEach(s=>r[s]=new Float64Array(ND));res.set(key,r)}const d=F.d[i];for(const s of STEPS)r[s][d]+=F[s][i]}return res}
+function fRate(r,num,den,d,sm){let a=0,b=0;for(let j=Math.max(0,d-sm+1);j<=d;j++){a+=r[num][j];b+=r[den][j]}return b?a/b:null}
+function fWin(r,[a,b]){const o={};STEPS.forEach(s=>{let t=0;for(let d=a;d<=b;d++)t+=r[s][d];o[s]=t});return o}
+function topKeys(map,field,k=7){return [...map.entries()].map(([key,r])=>[key,r[field].reduce((a,b)=>a+b,0)]).sort((a,b)=>b[1]-a[1]).slice(0,k).map(e=>e[0])}
+function zprop(x1,n1,x2,n2){if(!n1||!n2)return null;const p=(x1+x2)/(n1+n2),se=Math.sqrt(p*(1-p)*(1/n1+1/n2));return se?((x2/n2)-(x1/n1))/se:null}
+function evToggles(host){const d=document.createElement('div');d.className='evtoggles';d.innerHTML='<span class="muted">Zdarzenia na osi:</span>'+C.events.map(e=>`<label><input type="checkbox" data-e="${e.id}" ${ST.evOn[e.id]?'checked':''}> ${e.id}</label>`).join('');d.querySelectorAll('input').forEach(c=>c.onchange=()=>{ST.evOn[c.dataset.e]=c.checked;render()});host.appendChild(d)}
+function sel(id,opts,val,lab){return `<div><label for="${id}" class="muted">${lab}</label><select id="${id}">${opts.map(([v,t])=>`<option value="${v}" ${String(v)===String(val)?'selected':''}>${t}</option>`).join('')}</select></div>`}
+const UI={qg:'cel',qk:'core',mp:'',km:'rep',ka:90,ks:28,kd:'acq',fm:'payment_succeeded/sess',fs:7,fd:'',kdm:'acq'};
+// ---------- sections
+function rWzrost(){const s=$('s-wzrost');
+ s.innerHTML=`<h2>Czy dashboard pokazuje wzrost?</h2>
+ <div class="verdict"><p><b>Częściowo. Pacjentów jest więcej, ale retencja jest gorsza, nie lepsza, a wynik rośnie znacznie wolniej niż liczby z dashboardu.</b></p>
+ <p>Liczby z dashboardu odtwarzają się co do dziesiątej części procenta na surowych danych, czyli razem z 604 zduplikowanymi zamówieniami, 2 100 zamówieniami kont QA i przychodem brutto bez zwrotów (pewne).</p>
+ <p>Nowi pacjenci +52% to wzrost realny, ale w 85% pochodzi z dwóch nowych kampanii social nastawionych na L4 (Meta od 3.11.2025, TikTok od 9.02.2026). Stare kanały rosną o 4–15% (pewne).</p>
+ <p>Zamówienia powtórne +63% to głównie efekt bazy: zbiór startuje od zera, więc w pierwszym roku nie było kogo zatrzymywać. Przy równym wieku kohorty retencja 90-dniowa spada z 24,4% (kohorty X 24–IX 25) do 17,9% (kohorty X 25–VI 26), a dla kohort z wiosny 2026 do ~14–15%; przychód netto na pacjenta w 90 dni z ~130 zł do ~113 zł (pewne). Na poziomie kampanii z −6,5 pp retencji −5,0 pp to zmiana składu (nowe kampanie L4 z retencją 3–7%), a −1,5 pp to spadek w obrębie istniejących kampanii (pewność średnia; zbiega się z opóźnieniami porannych wizyt, patrz niżej). Zakładka Kohorty pokazuje ten rozkład dla dowolnych okien i filtrów.</p>
+ <p>Od listopada 2025 rośnie też opóźnienie porannych wizyt u internisty (6–11: z ~3% do ~40% wizyt spóźnionych ponad 20 min), a pierwsza wizyta spóźniona ponad 20 min wiąże się z o ~12 pp rzadszym powrotem w 60 dni. To najlepszy kandydat na wyjaśnienie spadku retencji w starych kanałach (zakładka Wizyty).</p>
+ <p>Kontrybucja po koszcie lekarza i marketingu: +27%, a na zamówienie −19%. Media płatne +77%, zwroty +94%, rabaty promo ×6,8.</p></div>
+ <div class="tscroll"><table><thead><tr><th>Miara</th><th class="n">X 24–IX 25</th><th class="n">X 25–IX 26</th><th class="n">Zmiana</th><th>Uwagi</th></tr></thead><tbody>
+ ${[['Nowi pacjenci (dashboard)',16251,24689,'surowe'],['Nowi pacjenci (czyste)',16231,24687,'bez kont QA'],['Zamówienia (dashboard)',25269,40613,'z duplikatami i QA'],['Zamówienia (czyste)',24716,38491,''],['  w tym pierwsze',16231,24687,''],['  w tym powtórne',8485,13804,'z czego 5 289 od kohort z X 24–IX 25'],['Przychód brutto konsultacji (dashboard)',2381881,3579929,'bez zwrotów'],['Przychód netto (czysty, z GO)',2386818,3447994,'po zwrotach'],['Zwroty',144461,279855,''],['Rabaty promo',20220,136760,''],['Rabaty GO',128516,258813,''],['Koszt lekarzy',1175700,1734825,'założenie 25/200/100 zł'],['Media płatne',367632,649675,''],['Afiliacja (25 zł)',15100,15225,''],['Kontrybucja',828385,1048269,'netto − lekarze − marketing'],['Kontrybucja na zamówienie',33.5,27.2,''],['Sprzedane GO',1759,2468,'od 9.2025 także bez konsultacji']].map(([a,p,l,c])=>{const bad=/Zwroty|Rabaty|Koszt|Media|Afiliacja/.test(a);const cls=bad?'':(l>=p?'pos':'neg');return `<tr><td>${a}</td><td class="n">${fmt(p,p<100?1:0)}</td><td class="n">${fmt(l,l<100?1:0)}</td><td class="n ${cls}">${(l/p-1>=0?'+':'')+pct(l/p-1,1)}</td><td class="muted">${c}</td></tr>`}).join('')}
+ </tbody></table></div>
+ <h4>Nowi pacjenci miesięcznie wg źródła pozyskania</h4><div class="chart" id="w1"></div>
+ <h4>Retencja 90 dni wg dnia kohorty (28-dniowa suma krocząca), stare vs nowe kanały</h4><div class="chart" id="w2"></div>
+ <p class="muted">Wykresy na tej zakładce ignorują filtry z panelu, żeby pokazywać zawsze cały biznes.</p>`;
+ // chart 1 monthly by channel group
+ const grp=a=>{const c=CH_OF[a]||a;return a==='meta_prosp_l4_szybko'?'Meta L4 (nowa)':a==='tt_prosp_l4_15min'?'TikTok (nowy)':c.startsWith('google/cpc')?'Google Ads':c.startsWith('meta')?'Meta (stare kampanie)':c==='google/organic'||c==='bing/organic'?'Organic':c==='direct/none'?'Direct':'Polecenia + afiliacja'};
+ const months=[];for(let d=0;d<ND;d++){const m=day2s(d).slice(0,7);if(!months.includes(m))months.push(m)}
+ const G=new Map();for(let i=0;i<K.len;i++){const g=grp(K.dict.acq[K.acq[i]]);if(!G.has(g))G.set(g,new Array(months.length).fill(0));G.get(g)[months.indexOf(day2s(K.cohd[i]).slice(0,7))]+=K.n[i]}
+ const order=['Google Ads','Organic','Direct','Meta (stare kampanie)','Polecenia + afiliacja','Meta L4 (nowa)','TikTok (nowy)'];
+ lineChart($('w1'),{x:months.map((_,i)=>i),xType:'cat',xFmt:i=>i%3===0?months[i]:'',series:order.filter(g=>G.has(g)).map(g=>({name:g,y:G.get(g),w:g.includes('nowy')||g.includes('nowa')?2.6:1.6})),yFmt:v=>fmt(v,0),events:false});
+ const old=new Map([['stare kanały',{n:new Float64Array(ND),r:new Float64Array(ND)}],['Meta L4 + TikTok',{n:new Float64Array(ND),r:new Float64Array(ND)}],['wszyscy',{n:new Float64Array(ND),r:new Float64Array(ND)}]]);
+ for(let i=0;i<K.len;i++){const a=K.dict.acq[K.acq[i]];const k=(a==='meta_prosp_l4_szybko'||a==='tt_prosp_l4_15min')?'Meta L4 + TikTok':'stare kanały';for(const kk of [k,'wszyscy']){old.get(kk).n[K.cohd[i]]+=K.n[i];old.get(kk).r[K.cohd[i]]+=K.rep90[i]}}
+ const xs=[...Array(ND).keys()];
+ lineChart($('w2'),{x:xs,series:[...old.entries()].map(([k,o])=>({name:k,y:xs.map(d=>{if(d>ND-1-90)return null;let n=0,r=0;for(let j=Math.max(0,d-27);j<=d;j++){n+=o.n[j];r+=o.r[j]}return n>30?r/n:null}),w:k==='wszyscy'?2.6:1.6})),yFmt:v=>pct(v,0)})}
+function rKohorty(){const s=$('s-kohorty');
+ s.innerHTML=`<h2>Kohorty dzienne</h2><p class="lead">Kohorta to dzień pierwszego opłaconego zamówienia. Miary „do dnia N" liczone tylko dla kohort, które miały pełne N dni obserwacji. Filtry kohort działają w panelu po lewej.</p>
+ <div class="row">${sel('km',Object.entries(KMET),UI.km,'Miara')}${sel('ka',AGES.map(a=>[a,'N = '+a+' dni']),UI.ka,'Wiek kohorty N')}${sel('ks',[[1,'dziennie'],[7,'7 dni (suma krocząca)'],[28,'28 dni (suma krocząca)']],UI.ks,'Wygładzenie')}${sel('kd',[['','bez podziału'],...['acq','f_visit_purpose','disc','device','inapp','f_delay'].map(k=>[k,LBL[k]])],UI.kd,'Podział')}</div>
+ <div id="kev"></div><div class="chart" id="k1"></div>
+ <h4>Porównanie okien A i B: krzywa retencji</h4><div class="grid2"><div class="chart" id="k2"></div><div class="tscroll" id="k3"></div></div>
+ <h4>Skład czy zachowanie? Rozkład zmiany miary między A i B</h4>
+ <div class="row">${sel('kdm',['acq','f_visit_purpose','disc','device','inapp','f_delay'].map(k=>[k,LBL[k]]),UI.kdm,'Wymiar rozkładu')}</div>
+ <div class="tscroll" id="k4"></div>
+ <h4>Kohorty miesięczne × wiek (retencja)</h4><div class="tscroll" id="k5"></div>`;
+ ['km','ka','ks','kd','kdm'].forEach(id=>$(id).onchange=e=>{UI[id]=isNaN(+e.target.value)||e.target.value===''?e.target.value:+e.target.value;rKohorty()});
+ evToggles($('kev'));
+ const m=UI.km,age=UI.ka,sm=UI.ks,dim=UI.kd||null;const spend=['cac','payback'].includes(m)?spendDaily():null;
+ const data=kDaily(dim);const keys=topKeys(data,'n',7);const xs=[...Array(ND).keys()];
+ if(['cac','payback'].includes(m)&&dim)$('k1').insertAdjacentHTML('beforebegin','<p class="muted">CAC przy podziale liczony jest od łącznych wydatków zaznaczonych kampanii; dla poprawnego CAC per kampania zaznacz jedną kampanię.</p>');
+ lineChart($('k1'),{x:xs,series:keys.map(k=>({name:k,y:kSeries(data.get(k),m,age,sm,spend)})),yFmt:yfm(m)});
+ // A vs B retention curve
+ const all=kDaily(null).get('wszyscy');const spAll=spendDaily();
+ if(!all){$('k2').innerHTML='<p class="muted" style="padding:20px">Brak kohort dla filtrów.</p>';return}
+ const cur=w=>AGES.map(a=>sumWin(all,w,a,'rep').v);
+ lineChart($('k2'),{x:AGES.map((_,i)=>i),xType:'cat',xFmt:i=>AGES[i]+' d',series:[{name:'A '+day2s(ST.A[0])+'…'+day2s(ST.A[1]),y:cur(ST.A)},{name:'B '+day2s(ST.B[0])+'…'+day2s(ST.B[1]),y:cur(ST.B)}],yFmt:v=>pct(v,0),events:false,h:240});
+ const rows=[['Pacjenci',w=>sumWin(all,w,0,'n').v,v=>fmt(v,0)],['Retencja 30 d',w=>sumWin(all,w,30,'rep').v,pct],['Retencja 90 d',w=>sumWin(all,w,90,'rep').v,pct],['Retencja 180 d',w=>sumWin(all,w,180,'rep').v,pct],['Przychód netto 90 d / pac.',w=>sumWin(all,w,90,'net').v,v=>fmt(v,1)+' zł'],['Marża 90 d / pac.',w=>sumWin(all,w,90,'mar').v,v=>fmt(v,1)+' zł'],['Marża 180 d / pac.',w=>sumWin(all,w,180,'mar').v,v=>fmt(v,1)+' zł'],['Zwroty+anulacje 30 d',w=>sumWin(all,w,30,'bad').v,pct],['No-show 30 d',w=>sumWin(all,w,30,'ns').v,pct],['Adopcja GO 90 d',w=>sumWin(all,w,90,'go').v,pct],['CAC (zazn. kampanie płatne)',w=>sumWin(all,w,0,'cac',spAll).v,v=>fmt(v,1)+' zł'],['Marża 180 d − CAC',w=>sumWin(all,w,180,'payback',spAll).v,v=>fmt(v,1)+' zł']];
+ $('k3').innerHTML='<table><thead><tr><th>Miara</th><th class="n">A</th><th class="n">B</th><th class="n">B − A</th></tr></thead><tbody>'+rows.map(([l,f,fm])=>{const a=f(ST.A),b=f(ST.B);return `<tr><td>${l}</td><td class="n">${fm(a)}</td><td class="n">${fm(b)}</td><td class="n ${b>=a?'pos':'neg'}">${a==null||b==null?'–':(fm===pct?((b-a)*100).toFixed(1)+' pp':fmt(b-a,1))}</td></tr>`}).join('')+'</tbody></table><p class="muted" style="padding:0 9px">Wartości „–" oznaczają, że w oknie nie ma kohort dojrzałych na ten wiek.</p>';
+ // decomposition
+ const dm=UI.kdm,mm=['rep','net','mar','bad','go','ord'].includes(m)?m:'rep',ag=['n','cac'].includes(m)?90:age;const dd=kDaily(dm);
+ const segs=[...dd.keys()];let nA=0,nB=0;const st=segs.map(k=>{const r=dd.get(k);const a=sumWin(r,ST.A,ag,mm),b=sumWin(r,ST.B,ag,mm);nA+=a.n;nB+=b.n;return{k,a,b}});
+ let totA=0,totB=0,within=0;st.forEach(x=>{x.wA=nA?x.a.n/nA:0;x.wB=nB?x.b.n/nB:0;if(x.a.v!=null)totA+=x.wA*x.a.v;if(x.b.v!=null)totB+=x.wB*x.b.v;if(x.a.v!=null&&x.b.v!=null&&x.a.n>=30)within+=x.wB*(x.b.v-x.a.v)});
+ const fm2=['rep','bad','go'].includes(mm)?(v=>pct(v,1)):(v=>fmt(v,2));const dif=fm2===pct||['rep','bad','go'].includes(mm)?(v=>(v*100).toFixed(1)+' pp'):(v=>fmt(v,2));
+ $('k4').innerHTML=`<table><thead><tr><th>${LBL[dm]}</th><th class="n">udział A</th><th class="n">udział B</th><th class="n">${KMET[mm].split(' (')[0]} A</th><th class="n">B</th><th class="n">zmiana w segmencie</th></tr></thead><tbody>${st.sort((x,y)=>y.b.n-x.b.n).map(x=>`<tr><td>${x.k}</td><td class="n">${pct(x.wA)}</td><td class="n">${pct(x.wB)}</td><td class="n">${x.a.v==null?'–':fm2(x.a.v)}</td><td class="n">${x.b.v==null?'–':fm2(x.b.v)}</td><td class="n">${x.a.v==null||x.b.v==null?'nowy segment':dif(x.b.v-x.a.v)}</td></tr>`).join('')}
+ <tr><th>Razem (wiek ${ag} d)</th><th></th><th></th><th class="n">${fm2(totA)}</th><th class="n">${fm2(totB)}</th><th class="n">${dif(totB-totA)}</th></tr>
+ <tr><td colspan="5">z tego efekt zachowania w segmentach (suma udziałów B × zmiana w segmencie, segmenty z ≥30 pacjentami w A)</td><td class="n">${dif(within)}</td></tr>
+ <tr><td colspan="5">z tego efekt zmiany składu (reszta, w tym nowe segmenty)</td><td class="n">${dif(totB-totA-within)}</td></tr></tbody></table>`;
+ // monthly heatmap
+ const months=[];for(let d=0;d<ND;d++){const mo=day2s(d).slice(0,7);if(!months.length||months[months.length-1].m!==mo)months.push({m:mo,a:d,b:d});else months[months.length-1].b=d}
+ $('k5').innerHTML='<table><thead><tr><th>Kohorta</th><th class="n">pacjenci</th>'+AGES.slice(1).map(a=>`<th class="n">${a} d</th>`).join('')+'<th class="n">marża 90 d</th></tr></thead><tbody>'+months.map(mo=>{const n=sumWin(all,[mo.a,mo.b],0,'n').v;return `<tr><td>${mo.m}</td><td class="n">${fmt(n,0)}</td>`+AGES.slice(1).map(a=>{const lim=ND-1-a;if(mo.b>lim)return '<td class="n muted">–</td>';const v=sumWin(all,[mo.a,mo.b],a,'rep').v;const al=Math.min(1,(v||0)/0.35);return `<td class="n" style="background:color-mix(in srgb,var(--acc) ${Math.round(al*45)}%,transparent)">${pct(v,1)}</td>`}).join('')+`<td class="n">${mo.b>ND-91?'–':fmt(sumWin(all,[mo.a,mo.b],90,'mar').v,1)}</td></tr>`}).join('')+'</tbody></table>'}
+function rLejek(){const s=$('s-lejek');
+ const opts=[];for(let i=1;i<STEPS.length;i++){opts.push([STEPS[i]+'/'+STEPS[i-1],SLBL[STEPS[i]]+' / '+SLBL[STEPS[i-1]]])}opts.push(['payment_succeeded/sess','Płatność OK / sesje (konwersja całkowita)']);opts.push(['sess/sess','Sesje / dzień']);
+ s.innerHTML=`<h2>Lejek: wejście → płatność</h2><p class="lead">Dzienna konwersja krok po kroku. Filtry lejka w panelu po lewej. Porównanie A/B pokazuje, w którym kroku i w jakim segmencie tracimy pacjentów.</p>
+ <div class="row">${sel('fm',opts,UI.fm,'Krok')}${sel('fs',[[1,'dziennie'],[7,'7 dni'],[28,'28 dni']],UI.fs,'Wygładzenie')}${sel('fd',[['','bez podziału'],['src',LBL.src],['device',LBL.device],['osb',LBL.osb],['visitor',LBL.visitor],['lp',LBL.lp]],UI.fd,'Podział')}</div>
+ <div id="fev"></div><div class="chart" id="f1"></div>
+ <h4>Lejek A vs B</h4><div class="grid2"><div class="chart" id="f2"></div><div class="tscroll" id="f3"></div></div>
+ <h4>Segmenty: zmiana wybranego kroku A → B (od największego spadku istotnego)</h4><div class="tscroll" id="f4"></div>`;
+ ['fm','fs','fd'].forEach(id=>$(id).onchange=e=>{UI[id]=id==='fs'?+e.target.value:e.target.value;rLejek()});
+ evToggles($('fev'));
+ const [num,den]=UI.fm.split('/');const dim=UI.fd||null;const data=fDaily(dim);const keys=topKeys(data,'sess',7);const xs=[...Array(ND).keys()];
+ lineChart($('f1'),{x:xs,series:keys.map(k=>{const r=data.get(k);return{name:k,y:xs.map(d=>{if(num==='sess'&&den==='sess'){let t=0,c=0;for(let j=Math.max(0,d-UI.fs+1);j<=d;j++){t+=r.sess[j];c++}return t/c}return fRate(r,num,den,d,UI.fs)})}}),yFmt:num==='sess'&&den==='sess'?(v=>fmt(v,0)):(v=>pct(v,1))});
+ const all=fDaily(null).get('wszystkie');if(!all){$('f2').innerHTML='<p class="muted" style="padding:20px">Brak sesji dla filtrów.</p>';return}
+ const A=fWin(all,ST.A),B=fWin(all,ST.B);
+ lineChart($('f2'),{x:STEPS.map((_,i)=>i),xType:'cat',xFmt:i=>SLBL[STEPS[i]],series:[{name:'A',y:STEPS.map(s=>A[s]/A.sess)},{name:'B',y:STEPS.map(s=>B[s]/B.sess)}],yFmt:v=>pct(v,0),events:false,h:240});
+ $('f3').innerHTML='<table><thead><tr><th>Krok</th><th class="n">A</th><th class="n">B</th><th class="n">B − A</th><th class="n">z</th></tr></thead><tbody>'+STEPS.slice(1).map((s,i)=>{const p=STEPS[i];const a=A[s]/A[p],b=B[s]/B[p],z=zprop(A[s],A[p],B[s],B[p]);return `<tr><td>${SLBL[s]} / ${SLBL[p]}</td><td class="n">${pct(a)}</td><td class="n">${pct(b)}</td><td class="n ${b>=a?'pos':'neg'}">${((b-a)*100).toFixed(1)} pp</td><td class="n">${z==null?'–':z.toFixed(1)}</td></tr>`}).join('')+`<tr><td>Sesje</td><td class="n">${fmt(A.sess,0)}</td><td class="n">${fmt(B.sess,0)}</td><td></td><td></td></tr></tbody></table>`;
+ const segDim=dim||'osb';const sd=fDaily(segDim);const nn=num==='sess'?'payment_succeeded':num,dn=num==='sess'?'sess':den;
+ const rows=[...sd.entries()].map(([k,r])=>{const a=fWin(r,ST.A),b=fWin(r,ST.B);return{k,na:a[dn],nb:b[dn],a:a[dn]?a[nn]/a[dn]:null,b:b[dn]?b[nn]/b[dn]:null,z:zprop(a[nn],a[dn],b[nn],b[dn]),lost:b[dn]&&a[dn]?(b[nn]/b[dn]-a[nn]/a[dn])*b[dn]:null}}).filter(x=>x.na>=50&&x.nb>=50).sort((x,y)=>(x.z??0)-(y.z??0));
+ $('f4').innerHTML=`<p class="muted" style="padding:6px 9px;margin:0">Podział: ${LBL[segDim]}. Krok: ${SLBL[nn]} / ${SLBL[dn]}. „Różnica w zdarzeniach" = zmiana konwersji × liczba wejść do kroku w B.</p><table><thead><tr><th>${LBL[segDim]}</th><th class="n">wejścia A</th><th class="n">wejścia B</th><th class="n">A</th><th class="n">B</th><th class="n">B − A</th><th class="n">z</th><th class="n">różnica w zdarzeniach</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${x.k}</td><td class="n">${fmt(x.na,0)}</td><td class="n">${fmt(x.nb,0)}</td><td class="n">${pct(x.a)}</td><td class="n">${pct(x.b)}</td><td class="n ${x.b>=x.a?'pos':'neg'}">${((x.b-x.a)*100).toFixed(1)} pp</td><td class="n">${x.z==null?'–':x.z.toFixed(1)}</td><td class="n">${fmt(x.lost,0)}</td></tr>`).join('')}</tbody></table>`}
+UI.vs='internista';UI.vk='';UI.vm='l20';UI.vsm=7;
+function rWizyty(){const s=$('s-wizyty');const specs=VD.dict.specialization;
+ s.innerHTML=`<h2>Wizyty: punktualność i oceny</h2><p class="lead">Odbyte wizyty (completed i refunded) wg terminu (scheduled_at, czas polski). Opóźnienie = started_at − scheduled_at. Okna A i B z panelu po lewej.</p>
+ <div class="row">${sel('vs',[['internista','internista'],['spec','specjaliści (bez internisty)'],['all','wszystkie'],...specs.filter(x=>x!=='internista').map(x=>[x,x])],UI.vs,'Specjalizacja')}${sel('vk',[['','pierwsza i kolejne'],['pierwsza','tylko pierwsza wizyta pacjenta'],['kolejna','tylko kolejne']],UI.vk,'Wizyta')}${sel('vm',[['l20','% wizyt opóźnionych >20 min'],['l10','% wizyt opóźnionych >10 min'],['rt','średnia ocena (1–5)'],['vis','wizyty / dzień']],UI.vm,'Miara')}${sel('vsm',[[1,'dziennie'],[7,'7 dni'],[28,'28 dni']],UI.vsm,'Wygładzenie')}</div>
+ <div id="vev"></div><div class="chart" id="v1"></div>
+ <h4>Profil godzinowy A vs B</h4><p class="muted">Liczony z miesięcy, które zaczynają się w danym oknie (kostka godzinowa jest miesięczna).</p><div class="tscroll" id="v2"></div>
+ <h4>Opóźnienie pierwszej wizyty a powrót pacjenta</h4><p class="lead">Retencja kohort wg opóźnienia pierwszej wizyty (wymiar „Opóźnienie 1. wizyty”, działa też w zakładce Kohorty). Działają filtry kohort. To korelacja: po kontroli kanału, celu, pory i okresu różnica ≤10 vs >20 min zostaje na poziomie ok. −11 pp w 60 dni.</p>
+ <div class="grid2"><div class="chart" id="v3"></div><div class="tscroll" id="v4"></div></div>
+ <h4>Czy różnica zostaje po kontroli? (pierwsza wizyta u internisty, kohorty z okna B)</h4><p class="lead">Porównanie ≤10 min vs >20 min w warstwach. Różnica „po kontroli” = średnia różnic w warstwach ważona liczbą pacjentów z opóźnieniem >20 min. Tylko kohorty z pełnymi 60 dniami. Filtry kohort tu nie działają.</p>
+ <div class="row">${sel('qg',[['cel','cel wizyty (L4 / reszta)'],['kan','kanał (Google, direct, polecenia, inne)'],['pora','pora wizyty'],['kcp','kanał × cel × pora']],UI.qg,'Warstwy')}${sel('qk',[['core','tylko kanały podstawowe'],['all','wszystkie kanały']],UI.qk,'Kanały')}</div><div class="tscroll" id="v5"></div>
+ <h4>Marża na zamówienie: specjalizacja × rabat</h4><p class="lead">Przychód netto po zwrotach minus koszt lekarza (25/200/100 zł za wizytę odbytą), bez opłaty GO. Pierwsza liczba: średnia na zamówienie (wszystkie statusy), w nawiasie: na odbytą wizytę. Czerwone = ujemne.</p>
+ <div class="row">${sel('mp',MV.dict.okres.map(p=>[p,p]),UI.mp||MV.dict.okres[MV.dict.okres.length-1],'Okres')}</div><div class="tscroll" id="v6"></div>`;
+ ['qg','qk','mp'].forEach(id=>$(id).onchange=e=>{UI[id]=e.target.value;rWizyty()});['vs','vk','vm','vsm'].forEach(id=>$(id).onchange=e=>{UI[id]=id==='vsm'?+e.target.value:e.target.value;rWizyty()});evToggles($('vev'));
+ const sp=VD.dict.specialization,ok=si=>UI.vs==='all'||(UI.vs==='spec'?sp[si]!=='internista':sp[si]===UI.vs);const kd=VD.dict.kind;
+ const P=new Map();for(let i=0;i<VD.len;i++){if(!ok(VD.specialization[i]))continue;if(UI.vk&&kd[VD.kind[i]]!==UI.vk)continue;const p=VD.dict.pora[VD.pora[i]];if(!P.has(p)){const o={};['vis','l10','l20','rs','rn'].forEach(m=>o[m]=new Float64Array(ND));P.set(p,o)}const o=P.get(p),d=VD.d[i];['vis','l10','l20','rs','rn'].forEach(m=>o[m][d]+=VD[m][i])}
+ const xs=[...Array(ND).keys()];const m=UI.vm;
+ const val=(o,d)=>{let a=0,b=0,c=0;for(let j=Math.max(0,d-UI.vsm+1);j<=d;j++){c++;if(m==='rt'){a+=o.rs[j];b+=o.rn[j]}else if(m==='vis'){a+=o.vis[j]}else{a+=o[m][j];b+=o.vis[j]}}return m==='vis'?a/c:(b>=5?a/b:null)};
+ lineChart($('v1'),{x:xs,series:[...P.keys()].sort().map(k=>({name:'godz. '+k,y:xs.map(d=>val(P.get(k),d))})),yFmt:m==='rt'?(v=>fmt(v,2)):m==='vis'?(v=>fmt(v,0)):(v=>pct(v,0))});
+ const inW=(mo,[a,b])=>{const d=s2day(mo+'-01');return d>=a&&d<=b};const H=[...Array(24)].map(()=>({A:{v:0,l:0,rs:0,rn:0},B:{v:0,l:0,rs:0,rn:0}}));
+ for(let i=0;i<VH.len;i++){if(!ok(VH.specialization[i]))continue;const mo=VH.dict.mo[VH.mo[i]];for(const w of ['A','B'])if(inW(mo,ST[w])){const o=H[VH.h[i]][w];o.v+=VH.vis[i];o.l+=VH.l20[i];o.rs+=VH.rs[i];o.rn+=VH.rn[i]}}
+ $('v2').innerHTML='<table><thead><tr><th>Godzina terminu</th><th class="n">wizyty A</th><th class="n">wizyty B</th><th class="n">&gt;20 min A</th><th class="n">&gt;20 min B</th><th class="n">zmiana</th><th class="n">ocena A</th><th class="n">ocena B</th></tr></thead><tbody>'+H.map((o,h)=>{const a=o.A.v?o.A.l/o.A.v:null,b=o.B.v?o.B.l/o.B.v:null;return `<tr><td>${String(h).padStart(2,'0')}:00</td><td class="n">${fmt(o.A.v,0)}</td><td class="n">${fmt(o.B.v,0)}</td><td class="n">${pct(a)}</td><td class="n">${pct(b)}</td><td class="n ${b>a+0.02?'neg':''}">${a==null||b==null?'–':((b-a)*100).toFixed(1)+' pp'}</td><td class="n">${o.A.rn?fmt(o.A.rs/o.A.rn,2):'–'}</td><td class="n">${o.B.rn?fmt(o.B.rs/o.B.rn,2):'–'}</td></tr>`}).join('')+'</tbody></table><p class="muted" style="padding:0 9px">Kolumny ignorują filtr „Wizyta” (pierwsza/kolejna).</p>';
+ const dd=kDaily('f_delay');const keys=['<=10 min','10-20 min','>20 min','nieodbyta'].filter(k=>dd.has(k));
+ lineChart($('v3'),{x:xs,series:keys.map(k=>({name:k,y:kSeries(dd.get(k),'rep',60,28,null,30)})),yFmt:v=>pct(v,0),h:260});
+ $('v4').innerHTML='<table><thead><tr><th>Opóźnienie 1. wizyty</th><th class="n">pacjenci A</th><th class="n">retencja 60 d A</th><th class="n">pacjenci B</th><th class="n">retencja 60 d B</th><th class="n">marża 180 d B</th></tr></thead><tbody>'+keys.map(k=>{const r=dd.get(k),a=sumWin(r,ST.A,60,'rep'),b=sumWin(r,ST.B,60,'rep');return `<tr><td>${k}</td><td class="n">${fmt(a.n,0)}</td><td class="n">${pct(a.v)}</td><td class="n">${fmt(b.n,0)}</td><td class="n">${pct(b.v)}</td><td class="n">${fmt(sumWin(r,ST.B,180,'mar').v,1)}</td></tr>`}).join('')+'</tbody></table><p class="muted" style="padding:0 9px">Wykres: 28-dniowa suma krocząca, tylko kohorty z pełnymi 60 dniami; punkty z mniej niż 30 pacjentami w oknie są pominięte.</p>';
+ // kontrola warstwowa (kostka Q)
+ const qd=Q.dict,lim=ND-1-60,G=['≤10 min','>20 min'];const st=new Map(),tot={'≤10 min':[0,0],'>20 min':[0,0]};
+ for(let i=0;i<Q.len;i++){const d=Q.cohd[i];if(d<ST.B[0]||d>Math.min(ST.B[1],lim))continue;const g=qd.dg[Q.dg[i]];if(!G.includes(g))continue;const kan=qd.kan[Q.kan[i]];if(UI.qk==='core'&&kan==='inne')continue;
+  const sk=UI.qg==='kcp'?[kan,qd.cel[Q.cel[i]],qd.pora[Q.pora[i]]].join(' / '):qd[UI.qg][Q[UI.qg][i]];if(!st.has(sk))st.set(sk,{'≤10 min':[0,0],'>20 min':[0,0]});st.get(sk)[g][0]+=Q.n[i];st.get(sk)[g][1]+=Q.r60[i];tot[g][0]+=Q.n[i];tot[g][1]+=Q.r60[i]}
+ let ws=0,wd=0;const rows=[...st.entries()].map(([k,v])=>{const a=v['≤10 min'],b=v['>20 min'],ra=a[0]?a[1]/a[0]:null,rb=b[0]?b[1]/b[0]:null;const used=ra!=null&&rb!=null&&a[0]>=20&&b[0]>=10;if(used){ws+=b[0];wd+=b[0]*(rb-ra)}return{k,a,b,ra,rb,used}}).sort((x,y)=>y.b[0]-x.b[0]);
+ const T0=tot['≤10 min'],T2=tot['>20 min'],dr=(a,b)=>a==null||b==null?'–':((b-a)*100).toFixed(1)+' pp';
+ $('v5').innerHTML=`<table><thead><tr><th>Warstwa</th><th class="n">n ≤10 min</th><th class="n">powrót 60 d</th><th class="n">n >20 min</th><th class="n">powrót 60 d</th><th class="n">różnica</th></tr></thead><tbody>${rows.map(x=>`<tr${x.used?'':' class="muted"'}><td>${x.k}${x.used?'':' (za mało obserwacji, poza średnią)'}</td><td class="n">${fmt(x.a[0],0)}</td><td class="n">${pct(x.ra)}</td><td class="n">${fmt(x.b[0],0)}</td><td class="n">${pct(x.rb)}</td><td class="n ${x.rb<x.ra?'neg':''}">${dr(x.ra,x.rb)}</td></tr>`).join('')}<tr><th>Razem, bez kontroli</th><th class="n">${fmt(T0[0],0)}</th><th class="n">${pct(T0[0]?T0[1]/T0[0]:null)}</th><th class="n">${fmt(T2[0],0)}</th><th class="n">${pct(T2[0]?T2[1]/T2[0]:null)}</th><th class="n">${dr(T0[0]?T0[1]/T0[0]:null,T2[0]?T2[1]/T2[0]:null)}</th></tr><tr><td colspan="5"><b>Różnica po kontroli</b> (warstwy z n ≥20 i ≥10)</td><td class="n"><b>${ws?(100*wd/ws).toFixed(1)+' pp':'–'}</b></td></tr></tbody></table><p class="muted" style="padding:0 9px">Kohorty: ${day2s(ST.B[0])}…${day2s(Math.min(ST.B[1],lim))}. Ustaw okno B na cały okres, żeby odtworzyć liczby z audytu.</p>`;
+ // marża (kostka M)
+ const mp=UI.mp||MV.dict.okres[MV.dict.okres.length-1],spM=MV.dict.specialization,dtM=MV.dict.discount_type,cell={};for(let i=0;i<MV.len;i++){if(MV.dict.okres[MV.okres[i]]!==mp)continue;cell[spM[MV.specialization[i]]+'|'+dtM[MV.discount_type[i]]]={n:MV.n[i],m:MV.m[i],h:MV.held[i],mh:MV.mh[i]}}
+ const DL={none:'bez rabatu',go:'GO',promo:'promo'},ordD=['none','go','promo'].filter(d=>dtM.includes(d));
+ $('v6').innerHTML=`<table><thead><tr><th>Specjalizacja</th>${ordD.map(d=>`<th class="n">${DL[d]}</th><th class="n">n</th>`).join('')}</tr></thead><tbody>${spM.map(s=>`<tr><td>${s}</td>${ordD.map(d=>{const c=cell[s+'|'+d];if(!c)return '<td class="n">–</td><td></td>';const v=c.m/c.n,vh=c.h?c.mh/c.h:null;return `<td class="n ${v<0?'neg':''}">${fmt(v,1)} <span class="muted">(${fmt(vh,1)})</span></td><td class="n muted">${fmt(c.n,0)}</td>`}).join('')}</tr>`).join('')}</tbody></table>`;
+ // iOS section
+ s.insertAdjacentHTML('beforeend',`<h4 id="v-ios-h">Błąd iOS: krok termin → konto (od 17.03.2026)</h4>
+ <p class="lead">Nowi pacjenci (bez opłaconego zamówienia przed sesją). Pionowa linia = 17.03.2026. Powracający: Safari 99,5%→99,7%, bez zmiany.</p>
+ <div class="chart" id="v7"></div>
+ <div class="tscroll" id="v8"></div>`);
+ // build iOS daily chart
+ const IOS=DATA.IOS,IBR=DATA.IOS_BR,IOSn=IOS.d.length,xs2=[...Array(ND).keys()];
+ const ibS2={},ibA2={};for(let j=0;j<IBR.length;j++){ibS2[j]=new Float64Array(ND);ibA2[j]=new Float64Array(ND);}
+ for(let i=0;i<IOSn;i++){if(IOS.typ_idx[i]!==0)continue;const d=IOS.d[i],br=IOS.br[i];if(ibS2[br])ibS2[br][d]+=IOS.slot[i],ibA2[br][d]+=IOS.acc[i];}
+ const sm=(si)=>xs2.map(d=>{let sn=0,sa=0;for(let j=Math.max(0,d-6);j<=d;j++){sn+=ibS2[si][j];sa+=ibA2[si][j];}return sn>=10?sa/sn:null;});
+ lineChart($('v7'),{x:xs2,series:[{name:'Safari',y:sm(0),color:'--s1',w:2.2},{name:'Chrome',y:sm(1),color:'--s2'},{name:'Facebook',y:sm(2),color:'--s3',dash:true},{name:'Instagram',y:sm(3),color:'--s5',dash:true},{name:'TikTok',y:sm(4),color:'--s7',dash:true}],yFmt:v=>pct(v,0)});
+ $('v8').innerHTML=`<table><thead><tr><th>Przeglądarka iOS</th><th class="n">n przed (16.01–16.03)</th><th class="n">n po (17.03–15.05)</th><th class="n">przed</th><th class="n">po</th><th class="n">zmiana</th><th class="n">z</th><th>Wniosek</th></tr></thead><tbody>${[['Safari (nowi)',1763,1553,66.2,45.1,-21.1,-12.2,'neg'],['Chrome (nowi)',296,241,72.3,59.3,-13.0,-3.2,'neg'],['Facebook (nowi)',336,301,64.9,60.8,-4.1,-1.1,''],['Instagram (nowi)',491,456,59.1,63.4,4.3,1.4,''],['TikTok (nowi)',117,428,58.1,58.9,0.8,0.1,''],['Safari (powracający)',577,588,99.5,99.7,0.2,0.5,'']].map(([br,na,nb,a,b,d,z,cls])=>`<tr><td>${br}</td><td class="n">${na}</td><td class="n">${nb}</td><td class="n">${pct(a/100,1)}</td><td class="n ${cls}">${pct(b/100,1)}</td><td class="n ${cls}">${d.toFixed(1)} pp</td><td class="n">${z.toFixed(1)}</td><td class="muted">${cls==='neg'?'<b class="neg">↓ istotny</b>':'brak zmiany'}</td></tr>`).join('')}</tbody></table><p class="muted" style="padding:0 9px">Okno: 60 dni przed i 60 dni po 17.03.2026. Nowy = bez opłaconego zamówienia przed sesją. WebKit nie tłumaczy wzorca: in-app (też WebKit) są bez zmiany; problem dotyczy pełnych przeglądarek systemowych i wyłącznie nowych pacjentów.</p>`}
+function rZdarzenia(){const s=$('s-zdarzenia');
+ s.innerHTML=`<h2>Wykryte zdarzenia</h2><p class="lead">Nie było listy zmian ani kalendarza kampanii. Każde zdarzenie wykryte w danych: nowa etykieta (kampania, kod, landing, przeglądarka) albo punkt zmiany w szeregu dziennym. „Fakt" to to, co widać w danych; „hipoteza" to interpretacja, której dane nie rozstrzygają.</p><div class="evlist">`+
+ C.events.map(e=>`<div class="ev"><div class="h"><span class="d">${e.d}${e.e?' – '+e.e:''}</span><b>${e.id}. ${e.title}</b><span class="c">${e.type}</span><span class="c">${e.conf}</span></div><p><b>Fakt.</b> ${e.fact}</p>${e.hyp?`<p><b>Hipoteza.</b> ${e.hyp}</p>`:''}<div><button data-k="kohorty" data-e="${e.id}">Porównaj kohorty przed/po</button><button data-k="lejek" data-e="${e.id}">Porównaj lejek przed/po</button></div></div>`).join('')+'</div>';
+ s.querySelectorAll('button').forEach(b=>b.onclick=()=>{const e=C.events.find(x=>x.id===b.dataset.e);const a=s2day(e.d),z=e.e?s2day(e.e):a;const L=Math.max(28,z-a+1);ST.A=[Math.max(0,a-L),a-1];ST.B=[a,Math.min(ND-1,a+L-1)];
+  if(e.id==='E4'){UI.fm='account_completed/slot_selected';UI.fd='osb';setMs('ff','visitor',ST.ff,['nowy'])}if(e.id==='E8'){UI.vs='internista';UI.vm='l20'}if(e.id==='E2'||e.id==='E3'){UI.kd='acq';UI.km='rep';UI.ka=30}setWin();go(b.dataset.k)})}
+function rPrio(){const s=$('s-prio');s.innerHTML='<h2>Lista priorytetów</h2><p class="lead">Kolejność według wartości, pewności i kosztu. Wartości są szacunkami rocznymi z jawnymi założeniami; marża liczona przy założonym koszcie lekarza.</p><ol class="prio">'+C.priorities.map(p=>`<li><b>${p.t}</b><div class="k"><span>Ile jest warte</span><span>${p.val}</span><span>Po czym poznamy</span><span>${p.kpi}</span><span>Czas wdrożenia</span><span>${p.time}</span></div></li>`).join('')+'</ol>'}
+function rUnk(){const s=$('s-unk');s.innerHTML='<h2>Czego nie da się rozstrzygnąć z tych danych</h2><div class="tscroll"><table><thead><tr><th>Pytanie</th><th>Dlaczego dane nie wystarczą</th><th>Co by to domknęło</th></tr></thead><tbody>'+C.unknowns.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+'</tbody></table></div>'}
+function rDane(){const s=$('s-dane');
+ const pat=[...K.n].reduce((a,b)=>a+b,0),ses=[...F1.sess].reduce((a,b)=>a+b,0),ps=[...F1.payment_succeeded].reduce((a,b)=>a+b,0),sp=[...SP.spend_pln].reduce((a,b)=>a+b,0);
+ const chk=[['Pacjenci (kohorty)',pat,CTL.patients],['Sesje (lejek)',ses,CTL.sessions],['Płatności OK (lejek)',ps,CTL.paid_success],['Wydatki (zł)',Math.round(sp*100)/100,CTL.spend],['Pacjenci w kostce regionów',[...R.n].reduce((a,b)=>a+b,0),CTL.patients],['Odbyte wizyty (kostka wizyt)',[...VD.vis].reduce((a,b)=>a+b,0),CTL.visits_held],['Odbyte wizyty (kostka godzinowa)',[...VH.vis].reduce((a,b)=>a+b,0),CTL.visits_held],['Sesje w kostce landing page',[...F2.sess].reduce((a,b)=>a+b,0),CTL.sessions],['Pierwsze wizyty u internisty (kostka powrotów)',[...Q.n].reduce((a,b)=>a+b,0),CTL.first_internist],['Zamówienia (kostka marży)',[...MV.n].reduce((a,b)=>a+b,0),CTL.orders_M]];
+ s.innerHTML='<h2>Dane, jakość i założenia</h2><h4>Kontrola: dane w narzędziu = wynik pipeline na pełnych danych</h4><div class="tscroll"><table><thead><tr><th>Suma</th><th class="n">w narzędziu</th><th class="n">pipeline</th><th>Status</th></tr></thead><tbody>'+chk.map(([l,a,b])=>`<tr><td>${l}</td><td class="n">${fmt(a,0)}</td><td class="n">${fmt(b,0)}</td><td class="${Math.abs(a-b)<0.5?'ok':'fail'}">${Math.abs(a-b)<0.5?'zgodne':'NIEZGODNE'}</td></tr>`).join('')+`</tbody></table></div><p class="muted">Odbyte wizyty z terminem po 30.09.2026 (poza osią narzędzia, nieuwzględnione w kostkach wizyt): ${fmt(CTL.visits_after_axis,0)}. Zamówienia po czyszczeniu: ${fmt(CTL.orders_clean,0)}; płatności OK = zamówienia + ${fmt(CTL.paid_success-CTL.orders_clean,0)} zakupów samego GO.</p>
+ <h4>Audyt jakości danych</h4><div class="tscroll"><table><thead><tr><th>Obszar</th><th>Wynik</th><th>Wpływ / decyzja</th></tr></thead><tbody>`+C.dq.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')+`</tbody></table></div>
+ <h4>Założenia (wszystkie w jednym miejscu)</h4><ul style="max-width:95ch">${C.assumptions.map(a=>`<li>${a}</li>`).join('')}</ul>
+ <h4>Agregacja wstępna</h4><p class="lead">1,08 mln wierszy surowych zredukowane do 9 kostek: kohorty (dzień × źródło × cel × rabat × urządzenie × przeglądarka, miary skumulowane w wieku 0/7/30/90/180/365 dni; ${fmt(K.len,0)} komórek), kohorty × region (${fmt(R.len,0)}), lejek dzień × źródło × urządzenie × system/przeglądarka × nowy/powracający (${fmt(F1.len,0)}), lejek dzień × źródło × landing × nowy/powracający (${fmt(F2.len,0)}), wydatki dzień × kampania (${fmt(SP.len,0)}), wizyty dzień × pora × specjalizacja × pierwsza/kolejna (${fmt(VD.len,0)}), wizyty miesiąc × godzina × specjalizacja (${fmt(VH.len,0)}), pierwsze wizyty internisty kohorta × opóźnienie × kanał × cel × pora (${fmt(Q.len,0)}), marża okres × specjalizacja × rabat (${fmt(MV.len,0)}). Wszystko liczone w przeglądarce z sum, więc proporcje są ważone poprawnie.</p>`}
+let raf=0;function render(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.k===ST.tab));document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id==='s-'+ST.tab));
+ const act=['kohorty','lejek','wizyty'].includes(ST.tab);$('filters').style.opacity=act?1:.55;$('filters').classList.toggle('idle',!act);
+ ({wzrost:rWzrost,kohorty:rKohorty,lejek:rLejek,zdarzenia:rZdarzenia,wizyty:rWizyty,prio:rPrio,unk:rUnk,dane:rDane})[ST.tab]()})}
+window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(render,200)});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',render);
+render();
+})();
+</script>
+</body>
+</html>
